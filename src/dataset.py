@@ -5,14 +5,14 @@ import torchvision
 import os
 from PIL import Image
 
-from utils import transform
+from src.utils import transform
 
 class PetDataset(Dataset):
-    def __init__(self):
+    def __init__(self, data_dir):
         super().__init__()
-        self.img_dir = ("../dataset/images")
+        self.img_dir = data_dir + "/images"
         self.labelledImages = []
-        with open("../dataset/annotations/list.txt", "r") as f:
+        with open(data_dir + "/annotations/list.txt", "r") as f:
             txt = f.read()
             image_infos = txt.split("\n")[6:-1]
         for image_info in image_infos:
@@ -28,8 +28,8 @@ class PetDataset(Dataset):
     def __len__(self):
         return len(self.labelledImages)
 
-def main():
-    petDataset = PetDataset()
+def get_data(image_directory):
+    petDataset = PetDataset(image_directory)
     number_training_data = int(2/3 * len(petDataset))
     number_validation_data = len(petDataset) - number_training_data
     training_data, validation_data = random_split(petDataset, [number_training_data, number_validation_data])
@@ -37,6 +37,10 @@ def main():
     test_dataloader = DataLoader(validation_data, batch_size=64, shuffle=True)
     print("GREAT SUCCESS: Dataset loaded")
     print(f"Samples: {len(petDataset)}")
+    return train_dataloader, test_dataloader
+
+def main():
+    get_data/("../dataset")
 
 if __name__ == "__main__":
     main()
