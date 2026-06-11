@@ -1,7 +1,5 @@
 from torch.utils.data import Dataset, DataLoader, random_split
 
-import torchvision
-
 import os
 from PIL import Image
 
@@ -16,9 +14,9 @@ class PetDataset(Dataset):
             txt = f.read()
             image_infos = txt.split("\n")[6:-1]
         for image_info in image_infos:
-            information = image_info.split(" ")
-            self.labelledImages.append([information[0], information[1]])
-
+            information = image_info.split()
+            self.labelledImages.append([information[0], int(information[1])])
+            
     def __getitem__(self, index):
         img_path = os.path.join(self.img_dir, self.labelledImages[index][0]) + ".jpg"
         image = transform(Image.open(img_path).convert("RGB"))
@@ -40,7 +38,7 @@ def get_data(image_directory):
     return train_dataloader, test_dataloader
 
 def main():
-    get_data/("../dataset")
+    get_data("../dataset")
 
 if __name__ == "__main__":
     main()

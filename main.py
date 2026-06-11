@@ -20,15 +20,22 @@ def train(model_pet):
 
     for epoch in range(config.epochs):
         test_loss = 0
+        train_loss = 0
         model_pet.train()
         for x_train, y_train in train_dataloader:
             x_train = x_train.to(device)
             y_train = y_train.to(device).long() - 1
+
             y_pred = model_pet(x_train)
             loss = loss_fn(y_pred, y_train)
+
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
+
+            train_loss += loss.item()
+
+        train_loss /= len(train_dataloader)
 
         model_pet.eval()
         with torch.inference_mode():
@@ -40,11 +47,11 @@ def train(model_pet):
                 test_loss += loss.item()
 
             test_loss /= len(test_dataloader)
+            print(f"Epoch: {epoch} | Train Loss: {train_loss:.4f} | Test Loss: {test_loss:.4f}")
 
         if epoch % 10 == 0:
             torch.save(model_pet.state_dict(), "pet_classifier.pth")
-            print(f"Epoch: {epoch} | Train Loss: {loss} | Test Loss: {test_loss}")
-
+        
 def inference(model_pet):
     model_pet.load_state_dict(torch.load("pet_classifier.pth", weights_only=True))
     model_pet.eval()
